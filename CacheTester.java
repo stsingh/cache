@@ -10,7 +10,7 @@ public class CacheTester {
 	@Test
 	public void leastRecentlyUsedIsCorrect () {
 		// In this (arbitrary) example, the DataProvider associates integer keys with String values.
-		final DataProvider<Integer,String> provider = null; // Need to instantiate an actual DataProvider
+		final DataProvider<Integer,String> provider = new WordLoader(null); // Need to instantiate an actual DataProvider
 		final Cache<Integer,String> cache = new LRUCache<Integer,String>(provider, 5);
 	}
 }

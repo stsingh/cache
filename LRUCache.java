@@ -1,10 +1,17 @@
 import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * An implementation of <tt>Cache</tt> that uses a least-recently-used (LRU)
  * eviction policy.
  */
 public class LRUCache<T, U> implements Cache<T, U> {
+	private DataProvider<T, U> _provider;
+	private int _capacity;
+	private HashMap<T, U> _cache;
+	private LinkedList<T> _list;
+	private int _numMisses;
+
 	/**
 	 * @param provider the data provider to consult for a cache miss
 	 * @param capacity the exact number of (key,value) pairs to store in the cache
@@ -13,6 +20,11 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		if (capacity < 1) {
 			throw new IllegalArgumentException("capacity must be at least 1");
 		}
+		_provider = provider;
+		_capacity = capacity;
+		_cache = new HashMap<T, U>();
+		_list = new LinkedList<T>();
+		_numMisses = 0;
 	}
 
 	/**
@@ -20,16 +32,30 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	 * @param key the key
 	 * @return the value associated with the key
 	 */
-	public U get (T key) {
-		return null;  // TODO: implement me
+	public U get(T key) {
+		if(isInCache(key)) {
+			_list.remove(key);
+			_list.add(key);
+			return _cache.get(key);
+		}
+		else {
+			_cache.put(key, _provider.get(key));
+			_list.add(key);
+			if(_list.size() > _capacity) {
+				T toRemove = _list.removeFirst();
+				_cache.remove(toRemove);
+			}
+			_numMisses++;
+			return _cache.get(key);
+		}
 	}
 
 	/**
 	 * Returns the number of cache misses since the object's instantiation.
 	 * @return the number of cache misses since the object's instantiation.
 	 */
-	public int getNumMisses () {
-		return 0;  // TODO: implement me
+	public int getNumMisses() {
+		return _numMisses;
 	}
 
 	/**
@@ -38,6 +64,6 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	 * @return whether the object is contained in the cache.
 	 */
 	public boolean isInCache (T key) {
-		return false;  // TODO: implement me
+		return _cache.containsKey(key);
 	}
 }
