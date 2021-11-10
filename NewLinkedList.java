@@ -47,28 +47,27 @@ public class NewLinkedList<T>{
         _numElements--;
         return storedHead._data;
     }
-    public Boolean remove(int index) {
-        // prelim checks
-        if (index < 0 || index >= _numElements)
-            throw new IllegalArgumentException("bad index");
-        else if(_numElements == 1) {
-            _head = null;
-            _tail = null;
-        } 
-        else if(index == 0) // index check
-            _head = _head._next;
-        else {
-            Node<T> cursor = _head;
-            for(int i = 0 ; i < index ; i ++){
-                cursor = _head._next;
-            }
-            cursor._next = cursor._next._next;
-
-            if(index == _numElements - 1) {
-                _tail = cursor;
-            }
+    public Boolean remove(T key) {
+        Node<T> cursor = _head;
+        if(cursor == key){
+            _head = cursor._next;
+            _numElements--;
+            return true;
         }
-        _numElements--;
-        return true;
+        for(int i = 0 ; i < _numElements ; i ++){
+            if(cursor._next == key){
+                cursor._next = cursor._next._next;
+                if(_tail._next == key) {
+                    _tail = cursor;
+                }
+                _numElements--;
+                return true;
+            }
+            cursor = _head._next;
+        }
+        return null;
+    }
+    public int size() {
+        return _numElements;
     }
 }
