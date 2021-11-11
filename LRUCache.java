@@ -96,6 +96,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	public boolean add (T key, U data){
 		Node<U> node = new Node<U>(data, null, null);
 		_dummyTail._previous._next = node;
+		node._previous = _dummyTail._previous;
 		_dummyTail._previous = node;
 		node._next = _dummyTail; 
         _numElements++;
