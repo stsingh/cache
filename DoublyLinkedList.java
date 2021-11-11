@@ -9,15 +9,20 @@ public class DoublyLinkedList<T>{
             _previous = previous;
         }
     }
+
+    //instance variables
     private Node<T> _head;
     private Node<T> _tail;
     private int _numElements;
+
+    //constructor
     public DoublyLinkedList () {
         _head = null;
         _tail = null;
         _numElements = 0;
     }
 
+    //get method
     public T get (int index){
         if (index < 0 || index >= _numElements){
             throw new IllegalArgumentException("bad index");
@@ -28,6 +33,8 @@ public class DoublyLinkedList<T>{
         }
         return cursor._data;
     }
+
+    //add method
     public boolean add (T val){
         Node<T> node = new Node<T>(val, null, null);
         if (_head == null) {
@@ -42,6 +49,8 @@ public class DoublyLinkedList<T>{
         _numElements++;
         return true;
     }
+
+
     public T remove() {
         if(_head == null) 
             return null;
@@ -55,6 +64,10 @@ public class DoublyLinkedList<T>{
     //doubly linked list
     public Boolean remove(T key) {
         Node<T> cursor = _head;
+        if(cursor._data.equals(key)) {
+            _head = _head._next;
+            _head._previous = null;
+        }
         for(int i = 0 ; i < _numElements ; i ++){
             cursor = cursor._next;
             if(cursor._data.equals(key)){
@@ -66,7 +79,7 @@ public class DoublyLinkedList<T>{
         }
         return false;
     }
-    
+
     public int size() {
         return _numElements;
     }
