@@ -8,7 +8,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	private DataProvider<T, U> _provider;
 	private int _capacity;
 	private HashMap<T, U> _cache;
-	private NewLinkedList<T> _list;
+	private DoublyLinkedList<T> _list;
 	private int _numMisses;
 
 	/**
@@ -22,7 +22,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		_provider = provider;
 		_capacity = capacity;
 		_cache = new HashMap<T, U>();
-		_list = new NewLinkedList<T>();
+		_list = new DoublyLinkedList<T>();
 		_numMisses = 0;
 	}
 
@@ -31,6 +31,8 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	 * @param key the key
 	 * @return the value associated with the key
 	 */
+
+	
 	public U get(T key) {
 		if(isInCache(key)) {
 			_list.remove(key);
