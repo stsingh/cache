@@ -14,5 +14,4 @@ interface Cache<T, U> extends DataProvider<T, U> {
 	 * @return whether the object is contained in the cache.
 	 */
 	boolean isInCache (T key);
-    int getNumElements();
 }
