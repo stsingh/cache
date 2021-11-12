@@ -70,7 +70,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		// miss
 		else {
 			//eviction
-			if(_numElements >= _capacity) {
+			if(_numElements >= _capacity) {//check this! >= is silly
 				removeFirst();
 			}
 			add(key, _provider.get(key));
