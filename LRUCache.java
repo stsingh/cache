@@ -126,7 +126,4 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		return node;
 	}
 
-	public int getNumElements(){
-		return _numElements;
-	}
 }
