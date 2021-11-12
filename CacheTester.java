@@ -17,6 +17,8 @@ public class CacheTester {
 		provider.put("Rhode Island", "Providence");
 		provider.put("Vermont", "Montpelier");
 		provider.put("Connecticut", "Hartford");
+		provider.put("California", "Sacramento");
+		System.out.println(provider);
 		final Cache<String,String> cache = new LRUCache<String,String> (provider, 5);
 		cache.get("Massachusetts");
 		cache.get("Texas");
@@ -26,6 +28,7 @@ public class CacheTester {
 		assertTrue(cache.isInCache("Massachusetts")); //assert that massachusetts was in the cache in the first place
 		cache.get("Vermont");
 		cache.get("Connecticut");
+		cache.get("California");
 		System.out.println(cache.getNumElements());
 		assertTrue(!cache.isInCache("Massachusetts"));//assert that massachusetts was evicted
 		assertTrue(!cache.isInCache("Texas"));//assert that texas was evicted (additional test)

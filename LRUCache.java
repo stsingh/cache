@@ -5,16 +5,19 @@ import java.util.HashMap;
  * eviction policy.
  */
 public class LRUCache<T, U> implements Cache<T, U> {
-	private static class Node<U> {
+	private static class Node<T, U> {
+		private T _key;
         private U _data;
-        private Node<U> _next;
-        private Node<U> _previous;
-        public Node (U data, Node<U> previous, Node<U> next){
-            _data = data;
+        private Node<T, U> _next;
+        private Node<T, U> _previous;
+        public Node (T key, U data, Node<T, U> previous, Node<T, U> next){
+            _key = key;
+			_data = data;
             _next = next;
             _previous = previous;
         }
 		public Node() {
+			_key = null;
 			_data = null;
 			_next = null;
 			_previous = null;
@@ -22,12 +25,12 @@ public class LRUCache<T, U> implements Cache<T, U> {
     }
 	private DataProvider<T, U> _provider;
 	private int _capacity;
-	private HashMap<T, Node<U>> _cache;
+	private HashMap<T, Node<T, U>> _cache;
 	private int _numMisses;
 	//instance variables for doubly-linked list functionality
     private int _numElements;
-	private Node<U> _dummyHead;
-	private Node<U> _dummyTail;
+	private Node<T, U> _dummyHead;
+	private Node<T, U> _dummyTail;
 
 	/**
 	 * @param provider the data provider to consult for a cache miss
@@ -39,12 +42,12 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		}
 		_provider = provider;
 		_capacity = capacity;
-		_cache = new HashMap<T, Node<U>>();
+		_cache = new HashMap<T, Node<T, U>>();
 		_numMisses = 0;
 		
 		// instantiate doubly-linked list fields
-		_dummyHead = new Node<U>();
-		_dummyTail = new Node<U>();
+		_dummyHead = new Node<T, U>();
+		_dummyTail = new Node<T, U>();
 		_dummyHead._next = _dummyTail;
 		_dummyTail._previous = _dummyHead;
 	}
@@ -66,11 +69,11 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		}
 		// miss
 		else {
-			add(key, _provider.get(key));
 			//eviction
-			if(_numElements > _capacity) {
-				remove(key);
+			if(_numElements >= _capacity) {
+				removeFirst();
 			}
+			add(key, _provider.get(key));
 			_numMisses++;
 			return _cache.get(key)._data;
 		}
@@ -94,7 +97,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	}
 
 	public boolean add (T key, U data){
-		Node<U> node = new Node<U>(data, null, null);
+		Node<T, U> node = new Node<T, U>(key, data, null, null);
 		_dummyTail._previous._next = node;
 		node._previous = _dummyTail._previous;
 		_dummyTail._previous = node;
@@ -104,18 +107,18 @@ public class LRUCache<T, U> implements Cache<T, U> {
         return true;
 	}
 
-	public Node<U> removeFirst () {
-		Node<U> storedHead = _dummyHead._next;
+	public Node<T, U> removeFirst () {
+		Node<T, U> storedHead = _dummyHead._next;
+		T firstKey = storedHead._key;
 		_dummyHead._next = _dummyHead._next._next;
 		_dummyHead._next._previous = _dummyHead;
-		_cache.remove(storedHead);
+		_cache.remove(firstKey);
 		_numElements--;
 		return storedHead;
 	}
 
-	public Node<U> remove (T key){
-		Node<U> node = _cache.get(key);
-		System.out.println(node._data);
+	public Node<T, U> remove (T key){
+		Node<T, U> node = _cache.get(key);
 		node._previous._next = node._next;
 		node._next._previous = node._previous;
 		_numElements--;

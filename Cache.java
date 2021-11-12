@@ -1,5 +1,3 @@
-import java.util.function.BooleanSupplier;
-
 /**
  * CS 2103 2021 B-term (Whitehill)
  * A cache that associates keys with values.
