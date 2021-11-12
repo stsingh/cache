@@ -69,7 +69,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 			add(key, _provider.get(key));
 			//eviction
 			if(_numElements > _capacity) {
-				removeFirst();
+				remove(key);
 			}
 			_numMisses++;
 			return _cache.get(key)._data;
@@ -107,8 +107,9 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	public Node<U> removeFirst () {
 		Node<U> storedHead = _dummyHead._next;
 		_dummyHead._next = _dummyHead._next._next;
-		_numElements--;
+		_dummyHead._next._previous = _dummyHead;
 		_cache.remove(storedHead);
+		_numElements--;
 		return storedHead;
 	}
 
@@ -122,23 +123,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		return node;
 	}
 
-	/*public boolean DLinkedListAdd (U data){
-		Node<U> node = new Node<T>(data, null, null);
-		_dummyTail._previous._next = node;
-		_dummyTail._previous = node;
-		node._next = _dummyTail; 
-        _numElements++;
-        return true;
+	public int getNumElements(){
+		return _numElements;
 	}
-
-	public T DLinkedListRemoveFirst () {
-		Node<T> storedHead = _dummyHead._next;
-		_dummyHead._next = _dummyHead._next._next;
-		_numElements--;
-		return storedHead._data;
-	}
-
-	public T DLinkedListRemove(T key) {
-        
-    }*/
 }

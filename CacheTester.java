@@ -26,6 +26,7 @@ public class CacheTester {
 		assertTrue(cache.isInCache("Massachusetts")); //assert that massachusetts was in the cache in the first place
 		cache.get("Vermont");
 		cache.get("Connecticut");
+		System.out.println(cache.getNumElements());
 		assertTrue(!cache.isInCache("Massachusetts"));//assert that massachusetts was evicted
 		assertTrue(!cache.isInCache("Texas"));//assert that texas was evicted (additional test)
 		assertTrue(cache.isInCache("Maine"));//assert that maine stays in the cache
