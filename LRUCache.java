@@ -84,7 +84,8 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		}
 		// miss
 		else {
-			//since the cache does not contain the specified node, the node is added to the end of the LinkedList
+			//since the cache does not contain the specified node, the node is added to the 
+			//end of the LinkedList
 			add(key, _provider.get(key)); 
 			//check if there is a need for eviction due to LRU logic (capacity has been reached)
 			if(_numElements > _capacity) {
@@ -121,11 +122,13 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	private boolean add (T key, U data){
 		Node<T, U> node = new Node<T, U>(key, data, null, null); //instantiate new node to be added
 
-		//add node to LinkedList by inserting it before the dummytail and after the former last non-dummy node
-		_dummyTail._previous._next = node; 
-		node._previous = _dummyTail._previous;
-		_dummyTail._previous = node;
-		node._next = _dummyTail;
+		//add node to LinkedList by inserting it before the dummytail and after the 
+		//former last non-dummy node
+		_dummyTail._previous._next = node; //points former tail forward towards the node (new tail)
+		node._previous = _dummyTail._previous; //points node backward towards the former tail
+		_dummyTail._previous = node; //points dummyTail backwards towards the node (new tail)
+		node._next = _dummyTail; //points the node forwards toward dummyTail
+		//with this logic LinkedList will be sufficiently linked once again with this addition
 
         _numElements++;
 		_cache.put(key, node); //add node to overarching Hashmap
@@ -140,9 +143,14 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		Node<T, U> storedHead = _dummyHead._next; //store the former head of the LinkedList
 		T firstKey = storedHead._key; //store the key of the former head
 
-		//remove the former head by linked the dummyhead with the new head (former second of the LinkedList)
-		_dummyHead._next = _dummyHead._next._next;
-		_dummyHead._next._previous = _dummyHead;
+		//remove the former head by linking dummyhead with new head (former second of the LinkedList)
+
+		//points the dummyHead forward towards the former second node
+		_dummyHead._next = _dummyHead._next._next; 
+		//points this new head (former second) backwards toward the dummyHead
+		_dummyHead._next._previous = _dummyHead; 
+
+		//with this logic LinkedList will be sufficiently linked once again after the removal
 
 		_cache.remove(firstKey); //remove node from overarching Hashmap
 		_numElements--;
@@ -158,8 +166,9 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		Node<T, U> node = _cache.get(key); //store the node to be removed
 
 		//remove node from the LinkedList by linking its previous and next nodes together
-		node._previous._next = node._next;
-		node._next._previous = node._previous;
+		node._previous._next = node._next; //creates a forward jump around the node specified
+		node._next._previous = node._previous; //creates a backwards jump around the node specified
+		//this "jumping" removes the specified node from the LinkedList, leaving it for garbage collection
 
 		_numElements--;
 		_cache.remove(key); //remove node from overarching Hashmap

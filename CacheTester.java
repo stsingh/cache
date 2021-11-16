@@ -27,7 +27,8 @@ public class CacheTester {
 		cache.get("Wisconsin");
 		cache.get("Maine");
 		cache.get("Rhode Island");
-		assertTrue(cache.isInCache("Massachusetts")); //assert that massachusetts was in the cache in the first place
+		//assert that Massachusetts was in the cache in the first place
+		assertTrue(cache.isInCache("Massachusetts")); 
 		//go over capacity of cache
 		cache.get("Vermont");
 		cache.get("Connecticut");
