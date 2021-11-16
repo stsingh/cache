@@ -5,17 +5,30 @@ import java.util.HashMap;
  * eviction policy.
  */
 public class LRUCache<T, U> implements Cache<T, U> {
+	
+	//Inner node class
 	private static class Node<T, U> {
-		private T _key;
-        private U _data;
-        private Node<T, U> _next;
-        private Node<T, U> _previous;
+		private T _key; //corresponding key of node in Hashmap
+        private U _data; //data contained within node pertaining to the provider
+		private Node<T, U> _previous; //the previous node in the LinkedList of nodes
+        private Node<T, U> _next; //the next node in the LinkedList of nodes
+
+		/**
+		 * Constructs a node with the specified key, data, previous node, and next node.
+		 * @param key corresponding key of node in Hashmap
+		 * @param data data contained within node pertaining to the provider
+		 * @param previous the previous node in the LinkedList of nodes
+		 * @param next the next node in the LinkedList of nodes
+		 */
         public Node (T key, U data, Node<T, U> previous, Node<T, U> next){
             _key = key;
 			_data = data;
             _next = next;
             _previous = previous;
         }
+		/**
+		 * Constructs a default node with no specified key, data, previous node, and next node.
+		 */
 		public Node() {
 			_key = null;
 			_data = null;
@@ -23,14 +36,16 @@ public class LRUCache<T, U> implements Cache<T, U> {
 			_previous = null;
 		}
     }
-	private DataProvider<T, U> _provider;
-	private int _capacity;
-	private HashMap<T, Node<T, U>> _cache;
-	private int _numMisses;
+
+	//Instance variables
+	private DataProvider<T, U> _provider; //data provider of caching system
+	private int _capacity; //capacity of the cache
+	private HashMap<T, Node<T, U>> _cache; //overarching hashmap of the cache
+	private int _numMisses; //number of misses when calling for data
 	//instance variables for doubly-linked list functionality
-    private int _numElements;
-	private Node<T, U> _dummyHead;
-	private Node<T, U> _dummyTail;
+    private int _numElements; //number of elements in the LinkedList
+	private Node<T, U> _dummyHead; //the dummy head of the LinkedList
+	private Node<T, U> _dummyTail; //the dummy tail of the LinkedList
 
 	/**
 	 * @param provider the data provider to consult for a cache miss
@@ -48,6 +63,7 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		// instantiate doubly-linked list fields
 		_dummyHead = new Node<T, U>();
 		_dummyTail = new Node<T, U>();
+		//link dummy nodes together to start LinkedList
 		_dummyHead._next = _dummyTail;
 		_dummyTail._previous = _dummyHead;
 	}
@@ -57,25 +73,25 @@ public class LRUCache<T, U> implements Cache<T, U> {
 	 * @param key the key
 	 * @return the value associated with the key
 	 */
-
-	
 	public U get(T key) {
 		// hit
 		if(isInCache(key)) {
-			//since remove(T key) returns the node removed, it can be used at the same time as adding
-			U data = remove(key)._data;
-			add(key, data);
-			return _cache.get(key)._data;
+			//since this is a hit, the node at the specified key contains the Most Recently Used 
+			//data in the cache, meaning it is moved to the back of the LinkedList
+			U recentData = remove(key)._data; //remove node from current spot in list
+			add(key, recentData); //add node to the end of the LinkedList
+			return _cache.get(key)._data; //return data of node specified
 		}
 		// miss
 		else {
-			add(key, _provider.get(key));
-			//eviction
+			//since the cache does not contain the specified node, the node is added to the end of the LinkedList
+			add(key, _provider.get(key)); 
+			//check if there is a need for eviction due to LRU logic (capacity has been reached)
 			if(_numElements > _capacity) {
-				removeFirst();
+				removeFirst(); //removed the LRU node
 			}
 			_numMisses++;
-			return _cache.get(key)._data;
+			return _cache.get(key)._data; //return data of node specified
 		}
 	}
 
@@ -96,34 +112,58 @@ public class LRUCache<T, U> implements Cache<T, U> {
 		return _cache.containsKey(key);
 	}
 
-	public boolean add (T key, U data){
-		Node<T, U> node = new Node<T, U>(key, data, null, null);
-		_dummyTail._previous._next = node;
+	/**
+	 * Adds a new node to the LinkedList as well as to the overarching Hashmap
+	 * @param key key of the node
+	 * @param data data of the node
+	 * @return true on success
+	 */
+	private boolean add (T key, U data){
+		Node<T, U> node = new Node<T, U>(key, data, null, null); //instantiate new node to be added
+
+		//add node to LinkedList by inserting it before the dummytail and after the former last non-dummy node
+		_dummyTail._previous._next = node; 
 		node._previous = _dummyTail._previous;
 		_dummyTail._previous = node;
-		node._next = _dummyTail; 
+		node._next = _dummyTail;
+
         _numElements++;
-		_cache.put(key, node);
+		_cache.put(key, node); //add node to overarching Hashmap
         return true;
 	}
 
-	public Node<T, U> removeFirst () {
-		Node<T, U> storedHead = _dummyHead._next;
-		T firstKey = storedHead._key;
+	/**
+	 * Removes the first non-dummy node from the LinkedList and overarching Hashmap
+	 * @return the removed node
+	 */
+	private Node<T, U> removeFirst () {
+		Node<T, U> storedHead = _dummyHead._next; //store the former head of the LinkedList
+		T firstKey = storedHead._key; //store the key of the former head
+
+		//remove the former head by linked the dummyhead with the new head (former second of the LinkedList)
 		_dummyHead._next = _dummyHead._next._next;
 		_dummyHead._next._previous = _dummyHead;
-		_cache.remove(firstKey);
+
+		_cache.remove(firstKey); //remove node from overarching Hashmap
 		_numElements--;
-		return storedHead;
+		return storedHead; //return the removed head
 	}
 
-	public Node<T, U> remove (T key){
-		Node<T, U> node = _cache.get(key);
+	/**
+	 * Removes a node from the LinkedList and overarching Hashmap given a key
+	 * @param key key of the node
+	 * @return the node that was removed
+	 */
+	private Node<T, U> remove (T key){
+		Node<T, U> node = _cache.get(key); //store the node to be removed
+
+		//remove node from the LinkedList by linking its previous and next nodes together
 		node._previous._next = node._next;
 		node._next._previous = node._previous;
+
 		_numElements--;
-		_cache.remove(key);
-		return node;
+		_cache.remove(key); //remove node from overarching Hashmap
+		return node; //return the removed node
 	}
 
 }
